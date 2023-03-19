@@ -1,16 +1,17 @@
 const { REST, Routes } = require('discord.js');
-const { clientId, guildId, token } = require('./src/config/env/development.js');
+const { clientId, guildId, token } = require('./src/config/env/production.js');
 const fs = require('node:fs');
 const path = require('node:path');
+const commandsDir = 'src/commands';
 
 const commands = [];
 // Grab all the command files from the commands directory you created earlier
-const commandsPath = path.join(__dirname, 'src/commands');
+const commandsPath = path.join(__dirname, commandsDir);
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 for (const file of commandFiles) {
-	const command = require(`./src/commands/${file}`);
+	const command = require(`./${commandsDir}/${file}`);
 	commands.push(command.data.toJSON());
 }
 console.log('COMMM=',commands.length, token, clientId)

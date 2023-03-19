@@ -16,7 +16,7 @@ module.exports = {
 				.setRequired(true)
 				.setMaxLength(48)
 				.setMinLength(48)
-				.setDescription('Send to Reef chain address')),
+				.setDescription('Send REEF to native address')),
 	async execute(interaction) {
 		if (interaction.user.bot) return;
 		//		console.log('interaction=', interaction)
@@ -29,7 +29,7 @@ module.exports = {
 		let tx;
 
 		if(!cache.has(userId)){
-		//	msg='⏳ please wait for '+config.limit+' hours between requests.'
+			msg='⏳ please wait for '+config.limit+' hours between requests.'
 		}
 		
 		if(!msg && !addrValid){

@@ -28,7 +28,7 @@ module.exports = {
 		let messageSent;
 		let tx;
 
-		if(!cache.has(userId)){
+		if( !!cache.has(userId)){
 			msg='⏳ please wait for '+config.limit+' hours between requests.'
 		}
 		
@@ -42,22 +42,33 @@ module.exports = {
 			cache.set(userId, 1, 1000 * 60 * 60 * config.limit);                
 			tx = faucet.send(addr, config);
 
-      msg = `Sending ${config.amount} ${config.symbol} to ${addr}.`;
+      msg = `🛟 ${addr} 🛟 reporting low levels`;
                 
 		}
 
-		messageSent = await interaction.reply({ content: msg, fetchReply: true });
-		if(tx){
-			tx.then(txRes=>{
-				//	console.log('txSent', txRes)
-				messageSent.react('🎁');	
-				//messageSent.reply('Sent tx hash '+txRes.toHex())
+		try{
+			messageSent = await interaction.reply({ content: msg, fetchReply: true });
+			//console.log('mssss=', messageSent)
+			if(tx){
+				tx.then(txRes=>{
+						console.log('txSent', txRes.toHuman())
+					//if(messageSent.guildId){
+						// messageSent.react('🎁').catch((err)=>{
+							// console.log('ERROR replying=', err)
+						// })
+					// }
+					interaction.followUp({ content: '🤿 oxygen delivered 🌊 tx hash '+txRes.toHex(), fetchReply: false });
+					//messageSent.reply('Sent tx hash '+txRes.toHex()).catch((err)=>{
+					//	console.log('ERROR replying=', err)
+					//})
 				
-			}).catch(err=>{
-				console.log('ERROR SENDING=',err);
-				messageSent.react('❌');
-			})	
+				}).catch(err=>{
+					console.log('ERROR SENDING=',err);
+					messageSent.react('❌');
+				})	
+			}
+		}catch(err){
+			console.log('ERROR=', err)
 		}
-		
 	},
 };

@@ -31,6 +31,9 @@ module.exports = {
 		if( !!cache.has(userId)){
 			msg='⏳ please wait for '+config.limit+' hours between requests.'
 		}
+		if(!!cache.has("lastTx")){
+			msg='⏳ please wait for 30 seconds between requests'
+		}
 		
 		if(!msg && !addrValid){
         msg = `❓ invalid address! Plese use the REEF native public address that starts with '5' ! >> `;
@@ -38,7 +41,7 @@ module.exports = {
 
 
 		if (!msg ) {
-
+			cache.set("lastTx",1,1000*30);
 			cache.set(userId, 1, 1000 * 60 * 60 * config.limit);                
 			tx = faucet.send(addr, config);
 

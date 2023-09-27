@@ -1,4 +1,3 @@
-
 const { BN } = require("bn.js"),
     crypto = require("@reef-defi/util-crypto");
 const  {Keyring, ApiPromise, WsProvider }= require( '@polkadot/api');
@@ -13,19 +12,22 @@ module.exports = class Faucet {
     };
 
     async init() {
-
-        const provider = new WsProvider(this.config.ws);
-        // this.api = await ApiPromise.create({ types: types, provider: ws });
-this.api = new ApiPromise(options({ provider }));
-    await this.api.isReady;
-                // Retrieve the chain & node information information via rpc calls
-        const [chain, nodeName, nodeVersion] = await Promise.all([
-            this.api.rpc.system.chain(),
-            this.api.rpc.system.name(),
-            this.api.rpc.system.version(),
-        ]);
-        // Log these stats
-        console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+        try {
+            const provider = new WsProvider(this.config.ws);
+            // this.api = await ApiPromise.create({ types: types, provider: ws });
+    this.api = new ApiPromise(options({ provider }));
+        await this.api.isReady;
+                    // Retrieve the chain & node information information via rpc calls
+            const [chain, nodeName, nodeVersion] = await Promise.all([
+                this.api.rpc.system.chain(),
+                this.api.rpc.system.name(),
+                this.api.rpc.system.version(),
+            ]);
+            // Log these stats
+            console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+        } catch (error) {
+            console.log(error)
+        }
 
     };
 

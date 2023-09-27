@@ -30,14 +30,13 @@ this.api = new ApiPromise(options({ provider }));
     };
 
     async send(address) {
-
-            const keyring = new Keyring({ type: "sr25519" });
-            const sender = keyring.addFromUri(this.config.mnemonic);
-            const padding = new BN(10).pow(new BN(this.config.decimals));
-            const amount = new BN(this.config.amount).mul(padding);
-            console.log(`Sending ${this.config.amount} ${this.config.symbol} to ${address}`);
-            return this.api.tx.balances.transferKeepAlive(address, amount).signAndSend(sender);
-
+        const keyring = new Keyring({ type: "sr25519" });
+        const sender = keyring.addFromUri(this.config.mnemonic);
+        const padding = new BN(10).pow(new BN(this.config.decimals));
+        const amount = new BN(this.config.amount).mul(padding);
+        console.log(`Sending ${this.config.amount} ${this.config.symbol} to ${address}`);
+        const nonce = await this.api.rpc.system.accountNextIndex(sender.address)
+        return this.api.tx.balances.transferKeepAlive(address, amount).signAndSend(sender,{nonce:nonce+1});
     }
 
      isAddressValid(address){

@@ -2,7 +2,7 @@
 const config = require("./config");
 const { Client,Collection, Events, GatewayIntentBits } = require('discord.js');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent ] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds ] });
 
 client.commands=new Collection();
 const faucetCmd = require('./commands/faucetCommand');
@@ -32,7 +32,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
 	const command = interaction.client.commands.get(interaction.commandName);
-	console.log(interaction.commandName)
 
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
@@ -50,4 +49,3 @@ client.on(Events.InteractionCreate, async interaction => {
 
 
 console.log("starting bot client")
-client.login(config.token);

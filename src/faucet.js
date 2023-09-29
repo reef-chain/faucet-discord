@@ -16,7 +16,6 @@ module.exports = class Faucet {
 
     async init() {
         const provider = new WsProvider(this.config.ws);
-        // this.api = await ApiPromise.create({ types: types, provider: ws });
         this.api = new ApiPromise(options({provider}));
         await this.api.isReady;
         // Retrieve the chain & node information information via rpc calls
@@ -36,11 +35,6 @@ module.exports = class Faucet {
     };
 
     async send(address) {
-        // const keyring = new Keyring({type: "sr25519"});
-        // const sender = keyring.addFromUri(this.config.mnemonic);
-        // const padding = new BN(10).pow(new BN(this.config.decimals));
-        // const amount = new BN(this.config.amount).mul(padding);
-        // const nonce = await this.api.rpc.system.accountNextIndex(sender.address)
         console.log(`Sending to ${address} // nonce=${this.nonce} // sender= ${this.sender.address}`);
         return this.api.tx.balances.transferKeepAlive(address, this.amount).signAndSend(this.sender, {nonce: this.nonce++});
     }

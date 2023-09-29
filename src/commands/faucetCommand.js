@@ -48,7 +48,7 @@ module.exports = {
 
         try {
             messageSent = await interaction.reply({content: msg, fetchReply: true});
-            //console.log('mssss=', messageSent)
+
             if (tx) {
                 tx.then(txRes => {
                     console.log('txSent=', txRes.toHuman())

@@ -33,7 +33,6 @@ module.exports = class Faucet {
         const padding = new BN(10).pow(new BN(this.config.decimals));
         this.amount = new BN(this.config.amount).mul(padding);
         this.nonce = await this.api.rpc.system.accountNextIndex(this.sender.address);
-
     };
 
     async send(address) {
@@ -43,7 +42,7 @@ module.exports = class Faucet {
         // const amount = new BN(this.config.amount).mul(padding);
         // const nonce = await this.api.rpc.system.accountNextIndex(sender.address)
         console.log(`Sending to ${address} // nonce=${this.nonce} // sender= ${this.sender.address}`);
-        return this.api.tx.balances.transferKeepAlive(address, this.amount).signAndSend(this.sender, {nonce: ++this.nonce});
+        return this.api.tx.balances.transferKeepAlive(address, this.amount).signAndSend(this.sender, {nonce: this.nonce++});
     }
 
     isAddressValid(address) {

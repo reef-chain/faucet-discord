@@ -39,7 +39,7 @@ module.exports = {
 
         if (!msg) {
 
-            //TODO uncomment - cache.set(userId, 1, 1000 * 60 * 60 * config.limit);
+            cache.set(userId, 1, 1000 * 60 * 60 * config.limit);
             tx = faucet.send(addr, config);
 
             msg = `🛟 ${addr} 🛟 reporting low levels`;

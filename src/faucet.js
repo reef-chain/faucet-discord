@@ -2,6 +2,8 @@ const {BN} = require("bn.js"),
     crypto = require("@reef-defi/util-crypto");
 const {Keyring, ApiPromise, WsProvider} = require('@polkadot/api');
 const {options} = require('@reef-defi/api');
+const {Subject,of, mergeMap, pipe, map, concatMap, catchError} = require('rxjs')
+const {shareReplay} = require("rxjs/src");
 
 module.exports = class Faucet {
 
@@ -11,7 +13,13 @@ module.exports = class Faucet {
         this.sender = null;
         this.amount = 0;
         this.nonce = 0;
-        this.init();
+        this.sendQueueSubj = new Subject();
+        this.sendQueueSubj.asObservable().pipe(
+            concatMap(send$ => send$),
+            catchError(_ => of(null))
+        ).subscribe();
+
+        this.init().then();
     };
 
     async init() {
@@ -31,16 +39,30 @@ module.exports = class Faucet {
         this.sender = keyring.addFromUri(this.config.mnemonic);
         const padding = new BN(10).pow(new BN(this.config.decimals));
         this.amount = new BN(this.config.amount).mul(padding);
-        this.nonce = await this.api.rpc.system.accountNextIndex(this.sender.address);
+        // await this.resetNonce(this.sender.address);
     };
 
-    async send(address) {
-        console.log(`Sending to ${address} // nonce=${this.nonce} // sender= ${this.sender.address}`);
-        return this.api.tx.balances.transferKeepAlive(address, this.amount).signAndSend(this.sender, {nonce: this.nonce++});
+    send(address) {
+        const nxt = this.sendQueueSubj.next;
+        return new Promise((resolve, reject) => {
+            const send$ = of({fromSig: this.sender, to: address, amount: this.amount}).pipe(
+                mergeMap((sendVal) => this.api.tx.balances.transferKeepAlive(sendVal.to, sendVal.amount).signAndSend(sendVal.fromSig, {nonce: -1})),
+                map(res => {
+                    resolve(res.toHex());
+                    return res;
+                })
+            );
+            console.log(`Sending to ${address} // nonce=${this.nonce} // sender= ${this.sender.address}`);
+            nxt(send$);
+        });
     }
 
     isAddressValid(address) {
         return !!crypto.checkAddress(address, this.config.address_type)[0];
     }
+
+    /*async resetNonce(address) {
+        this.nonce = await this.api.rpc.system.accountNextIndex(this.sender.address);
+    }*/
 
 };

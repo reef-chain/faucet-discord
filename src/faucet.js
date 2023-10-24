@@ -14,10 +14,6 @@ module.exports = class Faucet {
         this.amount = 0;
         this.nonce = 0;
         this.sendQueueSubj = new Subject();
-        this.sendQueueSubj.asObservable().pipe(
-            concatMap(send$ => send$),
-            catchError(_ => of(null))
-        ).subscribe();
 
         this.init().then();
     };
@@ -39,21 +35,31 @@ module.exports = class Faucet {
         this.sender = keyring.addFromUri(this.config.mnemonic);
         const padding = new BN(10).pow(new BN(this.config.decimals));
         this.amount = new BN(this.config.amount).mul(padding);
+
+        this.sendQueueSubj.asObservable().pipe(
+            concatMap(send$ => send$),
+            catchError(_ => of(null))
+        ).subscribe();
         // await this.resetNonce(this.sender.address);
     };
 
     send(address) {
-        const nxt = this.sendQueueSubj.next;
+        //const sendQueueNextFn = this.sendQueueSubj.next;
         return new Promise((resolve, reject) => {
             const send$ = of({fromSig: this.sender, to: address, amount: this.amount}).pipe(
                 mergeMap((sendVal) => this.api.tx.balances.transferKeepAlive(sendVal.to, sendVal.amount).signAndSend(sendVal.fromSig, {nonce: -1})),
                 map(res => {
                     resolve(res.toHex());
                     return res;
-                })
+                }),
+                catchError(err=>{
+                    reject(err.message);
+                    throw new Error(err.message);
+                }),
+                take(1)
             );
-            console.log(`Sending to ${address} // nonce=${this.nonce} // sender= ${this.sender.address}`);
-            nxt(send$);
+            console.log(`Adding to queue ${address} // nonce=${this.nonce} // sender= ${this.sender.address}`);
+            this.sendQueueSubj.next(send$);
         });
     }
 

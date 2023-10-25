@@ -51,7 +51,6 @@ module.exports = {
 
             if (tx) {
                 tx.then(txRes => {
-                    console.log(txRes)
                     //if(messageSent.guildId){
                     // messageSent.react('🎁').catch((err)=>{
                     // console.log('ERROR replying=', err)

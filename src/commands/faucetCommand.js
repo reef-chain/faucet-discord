@@ -51,13 +51,13 @@ module.exports = {
 
             if (tx) {
                 tx.then(txRes => {
-                    console.log('txSent=', txRes.toHuman())
+                    console.log(txRes)
                     //if(messageSent.guildId){
                     // messageSent.react('🎁').catch((err)=>{
                     // console.log('ERROR replying=', err)
                     // })
                     // }
-                    interaction.followUp({content: '🤿 oxygen delivered 🌊 tx hash ' + txRes.toHex(), fetchReply: false});
+                    interaction.followUp({content: '🤿 oxygen delivered 🌊 tx hash ' + txRes, fetchReply: false});
                     //messageSent.reply('Sent tx hash '+txRes.toHex()).catch((err)=>{
                     //	console.log('ERROR replying=', err)
                     //})

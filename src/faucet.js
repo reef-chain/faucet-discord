@@ -2,8 +2,7 @@ const {BN} = require("bn.js"),
     crypto = require("@reef-defi/util-crypto");
 const {Keyring, ApiPromise, WsProvider} = require('@polkadot/api');
 const {options} = require('@reef-defi/api');
-const {Subject,of, mergeMap, pipe, map, concatMap, catchError} = require('rxjs')
-const {shareReplay} = require("rxjs/src");
+const {Subject,of, mergeMap, map, concatMap, catchError,take} = require('rxjs')
 
 module.exports = class Faucet {
 

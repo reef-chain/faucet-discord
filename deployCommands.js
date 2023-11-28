@@ -1,5 +1,7 @@
 const {REST, Routes} = require('discord.js');
-const {clientId, guildId, token} = require('./src/config/env/production.js');
+const config = require('./src/config');
+// const {clientId, guildId, token} = require('./src/config/env/production.js');
+const {clientId, guildId, token} = config;
 const fs = require('node:fs');
 const path = require('node:path');
 const commandsDir = 'src/commands';

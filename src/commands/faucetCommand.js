@@ -1,6 +1,6 @@
-const {SlashCommandBuilder} = require('discord.js'),
+const {SlashCommandBuilder, ChatInputCommandInteraction} = require('discord.js'),
     LRU = require("lru-cache"),
-    Faucet = require('../faucet'),
+    Faucet = require('../_old_faucet'),
     config = require('../config');
 
 const faucet = new Faucet(config);
@@ -27,6 +27,13 @@ module.exports = {
         const addrValid = !!addr && faucet.isAddressValid(addr);
         let messageSent;
         let tx;
+
+console.log('got address=',addr);
+        messageSent = await interaction.reply({content: 'test123', fetchReply: true});
+
+        return;
+
+        faucet.interactionSubj.next(interaction);
 
         if (!!cache.has(userId)) {
             msg = '⏳ please wait for ' + config.limit + ' hours between requests.'

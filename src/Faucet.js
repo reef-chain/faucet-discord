@@ -102,32 +102,53 @@ module.exports = class Faucet {
         );
 
         const send$ = combineLatest([nextNonce$, validAddress$]).pipe(
-            scan((state, [nNonce, vAddr]) => {
-                if(state.sendToNext===vAddr && nNonce!==state.nNonce){
-                    // nonce changed, send to next addr
-                    state.sendToNext = state.vAddrArr.shift();
-                    state.nNonce = nNonce;
-                    return state;
-                }
-                if (state.nNonce === nNonce || !state.nNonce) {
+            scan((state, [sNextNonce, sNextInter]) => {
+                let nextInterSavedToSendInd = state.sendToInterArr.indexOf(sNextInter);
+                let nextInterAlreadySentInd = state.alreadySentInter.indexOf(sNextInter);
+                const isNewNextInter = nextInterAlreadySentInd<0 && nextInterSavedToSendInd<0;
+                const isNewNextNonce = state.lastNonce<sNextNonce;
 
-                    cache.startDelayCountdown(vAddr.userId);
-                    state.vAddrArr.push(vAddr);
-                    if(state.vAddrArr.length>1){
-                        return state;
-                    }
+                if (isNewNextInter) {
+                    cache.startDelayCountdown(sNextInter.userId);
+                    state.sendToInterArr.push(sNextInter);
                 }
+
+                let prevSendIdx = state.sendToInterArr.indexOf(state.sendNextInter);
+                if(prevSendIdx>-1 && state.lastNonce===sNextNonce){
+                    //remove previous send from state
+                    state.sendToInterArr.splice(prevSendIdx, 1);
+                    state.alreadySentInter.push(state.sendNextInter);
+                    state.lastSent = state.sendNextInter;
+                    state.lastNonce = state.sendNextNonce;
+                    state.sendNextInter = null;
+                    state.sendNextNonce = null;
+                }
+
+                let isVAddrOld = nextInterSavedToSendInd<0;
+                let wasVAddrSent = state.lastSent !== sNextInter;
+                if (wasVAddrSent && isVAddrOld) {
+                    cache.startDelayCountdown(sNextInter.userId);
+                    state.sendToInterArr.push(sNextInter);
+                }
+
+                let wasNonceSent = state.lastNonce !== sNextNonce;
+                if (wasNonceSent && state.sendToInterArr.length) {
+                    state.sendNextInter = state.sendToInterArr[0];
+                    // state.lastSent = state.sendNextInter;
+                    state.sendNextNonce = sNextNonce;
+                }
+
                 return state;
 
-            }, {nNonce: null, vAddrArr: [], sendToNext: null}),
+            }, {sendNextNonce: null, sendNextInter: null, sendToInterArr: [], alreadySentInter:[], lastSent:null, lastNonce:null}),
 tap(s=>console.log('stateee=',s)),
-            filter(v=>!!v.sendToNext),
-            distinctUntilKeyChanged('nNonce'),
-            mergeMap(({nNonce, sendToNext}) => {
-                // console.log('sendingNEXT=',nNonce);
+            filter(v=>!!v.sendNextInter),
+            distinctUntilKeyChanged('sendNextNonce'),
+            mergeMap(({sendNextNonce, sendNextInter}) => {
+                console.log('sendingSTART=',sendNextNonce);
                 return timer(3000).pipe(
                     tap(v => {
-                        console.log('sendingNEXT=', nNonce);
+                        console.log('sendingNEXT=', sendNextNonce);
                         this.nextNonceSubj.next(false);
                     }),
 

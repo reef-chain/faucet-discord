@@ -104,60 +104,61 @@ module.exports = class Faucet {
 
         const send$ = combineLatest([nextNonce$, validAddress$]).pipe(
             scan((state, [sNextNonce, sNextInter]) => {
-                let nextInterSavedToSendInd = state.sendToInterArr.indexOf(sNextInter);
-                let nextInterAlreadySentInd = state.alreadySentInter.indexOf(sNextInter);
+                const newState = {...state};
+                let nextInterSavedToSendInd = newState.sendToInterArr.indexOf(sNextInter);
+                let nextInterAlreadySentInd = newState.alreadySentInter.indexOf(sNextInter);
                 const isNewNextInter = nextInterAlreadySentInd<0 && nextInterSavedToSendInd<0;
-                const isNewNextNonce = state.lastNonce < sNextNonce;
+                const isNewNextNonce = newState.lastNonce < sNextNonce;
 
-                let prevSendIdx = state.sendToInterArr.indexOf(state.sendNextInter);
+                let prevSendIdx = newState.sendToInterArr.indexOf(newState.sendNextInter);
                 if(prevSendIdx >-1 && isNewNextNonce){
                     //remove previous send from state
-                    state.sendToInterArr=state.sendToInterArr.filter(v=>v!==state.sendNextInter);
-                    state.alreadySentInter=[...state.alreadySentInter, state.sendNextInter];
-                    console.log('REMOVED=',!!state.sendNextInter, ' left=',state.sendToInterArr.length);
-                    state.sendNextInter = null;
-                    state.sendNextNonce = null;
+                    newState.sendToInterArr=newState.sendToInterArr.filter(v=>v!==newState.sendNextInter);
+                    newState.alreadySentInter=[...newState.alreadySentInter, newState.sendNextInter];
+                    console.log('REMOVED=',!!newState.sendNextInter, ' left=',newState.sendToInterArr.length);
+                    newState.sendNextInter = null;
+                    newState.sendNextNonce = null;
                 }
 
                 if (isNewNextInter) {
                     cache.startDelayCountdown(sNextInter.userId);
-                    console.log('add NEW len=',state.sendToInterArr.length);
-                    state.sendToInterArr=[...state.sendToInterArr, sNextInter];
+                    console.log('add NEW len=',newState.sendToInterArr.length);
+                    newState.sendToInterArr=[...newState.sendToInterArr, sNextInter];
                 }
 
                 if (isNewNextNonce) {
-                    state.lastNonce = sNextNonce;
+                    newState.lastNonce = sNextNonce;
                 }
 
-                state.send = false;
-                if ((isNewNextNonce || state.lastNonce===sNextNonce) && !state.sendNextNonce&& !state.sendNextInter && state.sendToInterArr.length) {
-                    state.send=true;
-                    state.sendNextInter = state.sendToInterArr.find(v=>!!v);
-                    state.sendNextNonce = sNextNonce;
+                newState.send = false;
+                if ((isNewNextNonce || newState.lastNonce===sNextNonce) && !newState.sendNextNonce&& !newState.sendNextInter && newState.sendToInterArr.length) {
+                    newState.send=true;
+                    newState.sendNextInter = newState.sendToInterArr.find(v=>!!v);
+                    newState.sendNextNonce = sNextNonce;
                 }
 
-                return {...state};
+                return newState;
 
             }, {sendNextNonce: null, sendNextInter: null, sendToInterArr: [], alreadySentInter:[], lastNonce:null, send: true}),
 tap(s=>console.log('sendNextInter=',s)),
             filter(v=>!!v.sendNextInter&&v.send),
-            tap(s=>console.log('after FILTER sendNextNonce=',s.sendNextNonce, s.send)),
-            /*distinctUntilChanged((s1,s2)=> {
+            tap(s=>console.log('1after FILTER sendNextNonce=',s.sendNextNonce, s.send)),
+            distinctUntilChanged((s1,s2)=> {
                 let isSame = s1.sendNextInter === s2.sendNextInter && s1.sendNextNonce === s2.sendNextNonce&&s1.send===s2.send;
-                console.log('SAME=',isSame, s1===s2, s1.sendNextNonce, s2.sendNextNonce);
+                console.log('SAME=',isSame, s1?.sendNextNonce, s2?.sendNextNonce);
                 return isSame
-            }),*/
-            scan((state, value)=>{
+            }),
+            /*scan((state, value)=>{
                 let isSame = state.value.sendNextInter === value.sendNextInter && state.value.sendNextNonce === value.sendNextNonce&&state.value.send===value.send;
                 console.log('SAME=',isSame, value===state, value.sendNextNonce, state.sendNextNonce);
                 return {isSame, value};
             }, {value:{}, isSame:false}),
-            filter(v=>!!v),
-            pluck('value'),
-            tap(s=>console.log('sendingSTART=',s.sendNextNonce)),
+            filter(v=>!!v),*/
+            //pluck('value'),
+            tap(s=>console.log('sendingSTART=',s?.sendNextNonce)),
             mergeMap(({sendNextNonce, sendNextInter}) => {
                 // console.log('sendingSTART=',sendNextNonce);
-                return timer(5000).pipe(
+                return timer(7000).pipe(
                     map(v => {
                         console.log('sendingNEXT=', sendNextNonce);
                         setTimeout(()=>this.nextNonceSubj.next(false),0);
@@ -180,18 +181,6 @@ tap(s=>console.log('sendNextInter=',s)),
             )
         );
 
-
-        /*const sendBase$= validAddress$.pipe(
-
-            catchError((err, caught)=> {
-
-                console.log('send ERROR=', err.message);
-                return this.startWithResetNonce(caught);
-            }),
-            // tap(v => console.log('FFFF', v))
-        );*/
-
-        // const sendNonce$ = this.startWithResetNonce(sendBase$);
         send$.subscribe(v=>console.log('senttt=',v), err=>console.log('val ERRR=',err), ()=>console.log('send complete'));
         this.nextNonceSubj.next();
     };

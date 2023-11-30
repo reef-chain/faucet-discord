@@ -44,22 +44,21 @@ export function sendFinalized(interaction) {
     return interaction.editReply({
         content: `🏆 Transaction finalized on chain 🏆 
 
-⏳~10s to be visible on reefscan.com ...`
+⏳~10s to be visible on testnet.reefscan.com ...`
     });
 }
 
 export function sendIndexed(interaction, txHash) {
     const url = 'https://testnet.reefscan.com/transfer/' + txHash;
     const linkBtn = new ButtonBuilder()
-        .setLabel('👀 reefscan.com')
+        .setLabel('👀 testnet.reefscan.com ')
         .setURL(url)
         .setStyle(ButtonStyle.Link);
     const row = new ActionRowBuilder()
         .addComponents(linkBtn);
     return interaction.editReply({
-        components: [row], content: `🎉 Transfer details on reefscan.com 🎉 
-
-🪸🐠 Reef chain 🐠🪸`
+        components: [row], content: `🪸🐠 Transfer details available 🐠🪸 
+`
     });
 }
 

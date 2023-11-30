@@ -19,6 +19,8 @@ module.exports = {
                 .setDescription('Send REEF to native address')),
     async execute(interaction) {
 
+        interaction.reply({content: '🪸🐠 Received request for testnet tokens 🐠🪸', fetchReply: true, ephemeral: true});
+        // await interaction.deferReply({fetchReply:true, ephemeral:true});
         faucet.interactionSubj.next(interaction);
         return
 

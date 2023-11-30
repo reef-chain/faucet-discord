@@ -56,7 +56,7 @@ export const getSend$ = (api, sender, amount, addressInteraction$)=> {
         // add new request to array buffer
         if (isNewNextInter) {
             cache.startDelayCountdown(sNextInter.userId);
-            console.log('add NEW len=', newState.sendToInterArr.length);
+            // console.log('add NEW len=', newState.sendToInterArr.length);
             newState.sendToInterArr = [...newState.sendToInterArr, sNextInter];
         }
 

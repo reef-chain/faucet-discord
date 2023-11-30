@@ -73,7 +73,7 @@ async function sendNeedToWait(interaction) {
 }
 
 async function sendReceived(interaction) {
-    return interaction.reply({content: '🪸🐠 Received request for testnet tokens 🐠🪸'});
+    return await interaction.reply({content: '🪸🐠 Received request for testnet tokens 🐠🪸', fetchReply:true});
     // await interaction.deferReply({fetchReply:true, ephemeral:true});
 }
 
@@ -94,8 +94,11 @@ const inboundInteractions$ = interactionSubj.asObservable().pipe(
     filter(interaction => interaction?.user?.bot != null && !interaction.user.bot),
 
     mergeMap(async (interaction) => {
-        await sendReceived(interaction);
-
+        try {
+            await sendReceived(interaction);
+        }catch (e) {
+            console.log('iinterERR=',e.message);
+        }
         return ({
                 interaction,
                 address: interaction.options.getString('address'),

@@ -1,23 +1,23 @@
 // Load up the discord.js library
 const config = require("./config");
-const { Client,Collection, Events, GatewayIntentBits } = require('discord.js');
+const {Client, Collection, Events, GatewayIntentBits} = require('discord.js');
 const {initFaucet} = require("./faucet");
 
 
-initFaucet(config);
+const [evmProvider, nonce$, chain] = initFaucet(config);
+initServer(8080, evmProvider, nonce$, chain);
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds ] });
+const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
-client.commands=new Collection();
+client.commands = new Collection();
 const command = require('./commands/faucetCommand');
+const {initServer} = require("./server");
 if ('data' in command && 'execute' in command) {
-		client.commands.set(command.data.name, command);
+    client.commands.set(command.data.name, command);
     console.log('setting command=', command.data.name)
-	} else {
-		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-	}
-
-
+} else {
+    console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+}
 
 
 client.on("ready", () => {
@@ -29,25 +29,23 @@ client.on("ready", () => {
 });
 
 
-
 client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
+    if (!interaction.isChatInputCommand()) return;
 
-	const command = interaction.client.commands.get(interaction.commandName);
+    const command = interaction.client.commands.get(interaction.commandName);
 
-	if (!command) {
-		console.log(`No command matching ${interaction.commandName} was found.`);
-		return;
-	}
+    if (!command) {
+        console.log(`No command matching ${interaction.commandName} was found.`);
+        return;
+    }
 
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.log(`Error executing ${interaction.commandName}`);
-		console.log(error);
-	}
+    try {
+        await command.execute(interaction);
+    } catch (error) {
+        console.log(`Error executing ${interaction.commandName}`);
+        console.log(error);
+    }
 });
-
 
 
 console.log("starting bot client...")

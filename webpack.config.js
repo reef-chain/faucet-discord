@@ -21,9 +21,6 @@ module.exports = (env, argv) => {
 
         if (argv.mode === 'production') {
             config.plugins.push(new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("production"),
-            "process.env.MNEMONIC":JSON.stringify("control employ home citizen film salmon divorce cousin illegal episode certain olympic"),
-            "process.env.DISCORD_TOKEN":JSON.stringify("MTE1MzY1NjM4NTEwODcwNTM1MQ.GrB3Is.xjT--UBOc2sXdJHPDDGOy62kepQsUjpt571krQ"),
-            "process.env.DISCORD_CLIENT_ID":JSON.stringify("1153656385108705351")
         }));
         }
 

@@ -5,10 +5,10 @@ module.exports = {
     prefix: '/',
     symbol: 'REEF',
     decimals: 18,
-    ws: 'wss://rpc-testnet.reefscan.info/ws',
+    ws: 'wss://rpc-testnet.reefscan.com/ws',
     address_type: 42,
     mnemonic: process.env.MNEMONIC,
-    amount: 1,
+    amount: 2000,
     limit: 12,
     clientId:process.env.DISCORD_CLIENT_ID
 };

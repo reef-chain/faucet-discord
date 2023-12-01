@@ -1,5 +1,5 @@
 // module.exports = require('./webpack/' + process.env.NODE_ENV)();
-
+require('dotenv').config();
 var webpack = require('webpack');
     // { merge } = require('webpack-merge'),    
     
@@ -20,8 +20,8 @@ module.exports = (env, argv) => {
         }
 
         if (argv.mode === 'production') {
-            config.plugins.push(new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("production") }));
-                  
+            config.plugins.push(new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("production"),
+        }));
         }
 
     });

@@ -1,6 +1,6 @@
 import {startWith} from "rxjs";
 import {sendBroadcast, sendError, sendFinalized, sendInBlock, sendIndexed, sendReady} from "./interaction.rx";
-import {shareReplay} from "rxjs/src";
+import {shareReplay} from "rxjs";
 
 const {
     Subject, of, mergeMap, map, catchError, take, filter, tap, partition, EMPTY, share, concat,

@@ -3,7 +3,7 @@ import {ActionRowBuilder, ButtonBuilder, ButtonStyle} from "discord.js";
 
 const {filter, map, catchError, share, partition, switchScan, from, take, of} = require("rxjs");
 const cache = require("./cache");
-const crypto = require("@reef-defi/util-crypto");
+const crypto = require("@polkadot/util-crypto");
 const config = require("./config");
 
 const interactionSubj = new Subject();

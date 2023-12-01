@@ -10,4 +10,8 @@ COPY . ./
 
 RUN yarn build-prod
 
+ENV DISCORD_TOKEN=""
+ENV MNEMONIC=""
+ENV DISCORD_CLIENT_ID=""
+
 ENTRYPOINT ["yarn", "start"]

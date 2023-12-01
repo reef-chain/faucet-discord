@@ -2,14 +2,16 @@ import {validAddressInteraction$} from "./interaction.rx";
 import {getSend$} from "./send.rx";
 
 const {BN} = require("bn.js");
-const {Keyring, ApiPromise, WsProvider} = require('@polkadot/api');
-const {options} = require('@reef-defi/api');
+const {Keyring, WsProvider} = require('@polkadot/api');
+const {Provider} = require('@reef-chain/evm-provider');
 
 
 export const initFaucet = async (config)=> {
-    const provider = new WsProvider(config.ws);
-    const api = new ApiPromise(options({provider}));
-    await api.isReady;
+    const evmProvider = new Provider({
+        provider: new WsProvider(config.ws)
+    });
+    await evmProvider.api.isReadyOrError;
+    const api = evmProvider.api;
 // Retrieve the chain & node information information via rpc calls
     const [chain, nodeName, nodeVersion] = await Promise.all([
         api.rpc.system.chain(),

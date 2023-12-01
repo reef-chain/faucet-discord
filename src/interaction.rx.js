@@ -35,7 +35,7 @@ export function sendInBlock(interaction) {
     return interaction.editReply({
         content: `🏁 Accepted in block 🏁
 
-⏳ ~30s to unreversible finality ...
+⏳ ~30s to non reversible finality ...
                             `
     });
 }

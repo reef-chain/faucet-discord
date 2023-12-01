@@ -1,5 +1,5 @@
 // module.exports = require('./webpack/' + process.env.NODE_ENV)();
-
+require('dotenv').config();
 var webpack = require('webpack');
     // { merge } = require('webpack-merge'),    
     

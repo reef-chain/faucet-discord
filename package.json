@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack --progress --watch",
-    "build-prod": "del ./dist && cross-env NODE_ENV=production webpack --mode production --progress",
+    "build-prod": "del ./dist && cross-env NODE_ENV=production MNEMONIC='control employ home citizen film salmon divorce cousin illegal episode certain olympic' DISCORD_TOKEN='MTE1MzY1NjM4NTEwODcwNTM1MQ.GrB3Is.xjT--UBOc2sXdJHPDDGOy62kepQsUjpt571krQ' DISCORD_CLIENT_ID=1153656385108705351  webpack --mode production --progress",
     "start": "node ./dist/app.js"
   },
   "license": "MIT",

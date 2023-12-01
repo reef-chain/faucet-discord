@@ -17,4 +17,7 @@ ENV DISCORD_CLIENT_ID="REPLACE_DISCORD_CLIENT_ID"
 
 RUN yarn build-prod
 RUN chmod +x /usr/faucet/entrypoint.sh
+
+EXPOSE 8080
+
 ENTRYPOINT ["/usr/faucet/entrypoint.sh"]

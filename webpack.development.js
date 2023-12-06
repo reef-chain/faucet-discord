@@ -11,10 +11,10 @@ module.exports = function (env) {
     ///----------------------------
     {
 
-      
+
       target: 'node',
       // devtool: 'source-map',
-     
+
       entry: {
 
         'app': './src/app.js',
@@ -58,8 +58,8 @@ module.exports = function (env) {
       externals: [nodeExternals()],
       plugins: [
         new webpack.DefinePlugin({
-          'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),MNEMONIC: JSON.stringify(process.env.MNEMONIC),DISCORD_TOKEN:JSON.stringify(process.env.DISCORD_TOKEN),DISCORD_CLIENT_ID:JSON.stringify(process.env.DISCORD_CLIENT_ID)}
-        }),        
+          'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),MNEMONIC: JSON.stringify(process.env.MNEMONIC),DISCORD_TOKEN:JSON.stringify(process.env.DISCORD_TOKEN),DISCORD_CLIENT_ID:JSON.stringify(process.env.DISCORD_CLIENT_ID),RPC_WSS:JSON.stringify(process.env.RPC_WSS)}
+        }),
       ]
     },
 

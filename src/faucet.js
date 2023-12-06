@@ -7,6 +7,7 @@ const {Provider} = require('@reef-chain/evm-provider');
 
 
 export const initFaucet = async (config) => {
+    console.log('connecting to RPC ',config.ws);
     const evmProvider = new Provider({
         provider: new WsProvider(config.ws)
     });

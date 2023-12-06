@@ -14,10 +14,10 @@ module.exports = {
     __dirname: true,
     __filename: true,
   },
-  entry: {   
+  entry: {
 
     'app': './src/app.js'
-  
+
 
   },
   output: {
@@ -34,7 +34,7 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         //exclude: /node_modules/
-      },    
+      },
 
 
     ]
@@ -43,7 +43,7 @@ module.exports = {
   externals: [nodeExternals()],
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),MNEMONIC: JSON.stringify(process.env.MNEMONIC),DISCORD_TOKEN:JSON.stringify(process.env.DISCORD_TOKEN),DISCORD_CLIENT_ID:JSON.stringify(process.env.DISCORD_CLIENT_ID)}
+      'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV || "development"),MNEMONIC: JSON.stringify(process.env.MNEMONIC),DISCORD_TOKEN:JSON.stringify(process.env.DISCORD_TOKEN),DISCORD_CLIENT_ID:JSON.stringify(process.env.DISCORD_CLIENT_ID),RPC_WSS:JSON.stringify(process.env.RPC_WSS)}
     }),
 
     new webpack.optimize.LimitChunkCountPlugin({

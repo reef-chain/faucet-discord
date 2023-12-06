@@ -5,7 +5,7 @@ module.exports = {
     prefix: '/',
     symbol: 'REEF',
     decimals: 18,
-    ws: 'wss://rpc-testnet.reefscan.com/ws',
+    ws: process.env.RPC_WSS,
     address_type: 42,
     mnemonic: process.env.MNEMONIC,
     amount: 2000,

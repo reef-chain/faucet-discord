@@ -13,4 +13,5 @@ obj/*
 config.js
 note.txt
 package-lock.json
+.env.dev
 .env

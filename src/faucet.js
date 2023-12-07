@@ -41,7 +41,7 @@ export const initFaucet = async (config) => {
     const keyring = new Keyring({type: "sr25519"});
     let mnemonic = config.mnemonic.trim();
     if(config.debug){
-        console.log('setting up sender m=',mnemonic);
+        console.log('setting up sender m=',mnemonic.substring(mnemonic.length-8));
     }
     const sender = keyring.addFromUri(mnemonic);
     console.log('setting up sender addr=',sender.address);
@@ -49,6 +49,6 @@ export const initFaucet = async (config) => {
     const amount = new BN(config.amount).mul(padding);
 
     const [send$, nonce$] = getSend_nonce$(api, sender, amount, validAddressInteraction$, config.debug)
-    send$.subscribe(undefined, err => console.log('SEND STOPPED // ERRR=', err), () => console.log('send complete'));
+    send$.subscribe(undefined, err => console.log('SEND STOPPED!!! // ERRR=', err), () => console.log('send complete'));
     return [evmProvider, nonce$, chain]
 }

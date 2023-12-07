@@ -8,7 +8,7 @@ const {
 } = require('rxjs')
 const cache = require("./cache");
 
-const getNextNonceFnObs = (api, address) => {
+const getNextNonceFnObs = (api, address, debug) => {
     const nextNonceSubj = new Subject();
 
     const nextNonce$ = nextNonceSubj.pipe(
@@ -20,13 +20,19 @@ const getNextNonceFnObs = (api, address) => {
                     return ({nonce: n.toNumber(), reset, time: new Date()})
                 }), take(1),
                     catchError((err, caught) => {
-                        console.log('get next nonce ERR=',err.message);
+                        if(debug){
+                            console.log('get next nonce ERR=',err.message);
+                        }
                         if(!api.isConnected){
-                            console.log('rpc reconnecting');
+                            if(debug){
+                                console.log('rpc reconnecting');
+                            }
 
                             let connect$ = timer(3000).pipe(
                                 switchMap(() => {
-                                    console.log('connnnn....',api.isConnected);
+                                    if(debug){
+                                        console.log('connnnn....',api.isConnected);
+                                    }
                                     try {
                                         if(api.isConnected){
                                             return caught
@@ -38,7 +44,9 @@ const getNextNonceFnObs = (api, address) => {
                                     }
                                 }),
                                 switchMap(v => {
-                                    console.log('reconnected', v);
+                                    if(debug){
+                                        console.log('reconnected', v);
+                                    }
                                     return from(api.isReadyOrError).pipe(
                                         catchError(err1 => {
                                             console.log('API not ready err=',err1.message);
@@ -47,7 +55,9 @@ const getNextNonceFnObs = (api, address) => {
                                     );
                                 }),
                                 filter(v=> {
-                                    console.log('conn isReady=',v);
+                                    if(debug){
+                                        console.log('conn isReady=',v);
+                                    }
                                     return !!v
                                 })
                             );
@@ -73,7 +83,7 @@ const getNextNonceFnObs = (api, address) => {
 
 export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) => {
 
-    const [emitNextNonceFn, nextNonce$] = getNextNonceFnObs(api, sender.address);
+    const [emitNextNonceFn, nextNonce$] = getNextNonceFnObs(api, sender.address, debug);
     const nonce$ = nextNonce$.pipe(share());
 
     const send$ = combineLatest([nonce$, addressInteraction$]).pipe(
@@ -139,7 +149,7 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
 
             try {
                 if (debug) {
-                    console.log('send start ',address, sendNextNonce);
+                    console.log('send start ',address, ' nonce:', sendNextNonce);
                 }
                 const unsubs = await api.tx.balances.transferKeepAlive(address, amount).signAndSend(sender, {nonce: sendNextNonce}, async (txUpdate) => {
                     // console.log('val=', txUpdate.status.toHuman());
@@ -167,7 +177,7 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
                     }
                     if (stat.hasOwnProperty('Finalized')) {
                         if (debug) {
-                            console.log('send finalized ',sendNextInter.address);
+                            console.log('send finalized ',address, ' nonce:',sendNextNonce);
                         }
                         unsubs();
                         await sendFinalized(sendNextInter.interaction);
@@ -184,30 +194,6 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
 
         catchError((err, caught) => {
                 console.log('ERR1 =', err.message);
-            /*if(!api.isConnected){
-                console.log('rpc reconnecting');
-
-                let connect$ = timer(10000).pipe(
-                    switchMap(() => {
-                        console.log('connnnn....');
-                        try {
-                            return from(api.connect())
-                        } catch (e) {
-                            console.log('ERR 1.1 = ', e.message);
-                            return
-                        }
-                    }),
-                    switchMap(v => {
-                        console.log('reconnected', v);
-                        return api.isReady;
-                    }),
-                    filter(v=> {
-                        console.log('conn isReady=',v);
-                        return !!v
-                    })
-                );
-                return concat(connect$, caught)
-            }*/
                 return caught;
             }
         )

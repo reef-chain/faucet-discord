@@ -39,8 +39,11 @@ export const initFaucet = async (config) => {
     },5000)*/
 
     const keyring = new Keyring({type: "sr25519"});
-    console.log('setting up sender mnem=',config.mnemonic.substring(config.mnemonic.length-8));
+    if(config.debug){
+        console.log('setting up sender m=',config.mnemonic);
+    }
     const sender = keyring.addFromUri(config.mnemonic);
+    console.log('setting up sender addr=',sender.address);
     const padding = new BN(10).pow(new BN(config.decimals || 18));
     const amount = new BN(config.amount).mul(padding);
 

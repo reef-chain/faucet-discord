@@ -102,7 +102,7 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
                 cache.startDelayCountdown(sNextInter.userId);
                 newState.sendToInterArr = [...newState.sendToInterArr, sNextInter];
                 if(debug){
-                    console.log('add NEW len=', newState.sendToInterArr.length);
+                    console.log('add NEW len=', newState.sendToInterArr.length, newState.lastNonce, sNextNonce );
                 }
             }
 

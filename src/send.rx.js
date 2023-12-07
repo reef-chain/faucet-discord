@@ -29,7 +29,7 @@ const getNextNonceFnObs = (api, address) => {
     ];
 }
 
-export const getSend_nonce$ = (api, sender, amount, addressInteraction$) => {
+export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) => {
 
     const [emitNextNonceFn, nextNonce$] = getNextNonceFnObs(api, sender.address);
     const nonce$ = nextNonce$.pipe(share());
@@ -58,8 +58,10 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$) => {
             // add new request to array buffer
             if (isNewNextInter) {
                 cache.startDelayCountdown(sNextInter.userId);
-                // console.log('add NEW len=', newState.sendToInterArr.length);
                 newState.sendToInterArr = [...newState.sendToInterArr, sNextInter];
+                if(debug){
+                    console.log('add NEW len=', newState.sendToInterArr.length);
+                }
             }
 
             // set new nonce as last
@@ -94,6 +96,9 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$) => {
             const address = sendNextInter.address;
 
             try {
+                if (debug) {
+                    console.log('send start ',address, sendNextNonce);
+                }
                 const unsubs = await api.tx.balances.transferKeepAlive(address, amount).signAndSend(sender, {nonce: sendNextNonce}, async (txUpdate) => {
                     // console.log('val=', txUpdate.status.toHuman());
 
@@ -119,6 +124,9 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$) => {
                         return;
                     }
                     if (stat.hasOwnProperty('Finalized')) {
+                        if (debug) {
+                            console.log('send finalized ',sendNextInter.address);
+                        }
                         unsubs();
                         await sendFinalized(sendNextInter.interaction);
 

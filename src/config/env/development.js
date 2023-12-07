@@ -10,5 +10,6 @@ module.exports = {
     mnemonic: process.env.MNEMONIC,
     amount: 1,
     limit: 12,
-    clientId:process.env.DISCORD_CLIENT_ID
+    clientId:process.env.DISCORD_CLIENT_ID,
+    debug:true
 };

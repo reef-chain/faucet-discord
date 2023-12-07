@@ -47,5 +47,5 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 
-console.log("starting bot client...")
+console.log("starting bot client t=",config.token.substring(config.token.length-5))
 client.login(config.token);

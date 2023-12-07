@@ -23,11 +23,12 @@ export const initFaucet = async (config) => {
     console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
 
     const keyring = new Keyring({type: "sr25519"});
+    console.log('setting up sender mnem=',config.mnemonic.substring(config.mnemonic.length-8));
     const sender = keyring.addFromUri(config.mnemonic);
     const padding = new BN(10).pow(new BN(config.decimals || 18));
     const amount = new BN(config.amount).mul(padding);
 
-    const [send$, nonce$] = getSend_nonce$(api, sender, amount, validAddressInteraction$)
+    const [send$, nonce$] = getSend_nonce$(api, sender, amount, validAddressInteraction$, config.debug)
     send$.subscribe(undefined, err => console.log('SEND val ERRR=', err), () => console.log('send complete'));
     return [evmProvider, nonce$, chain]
 }

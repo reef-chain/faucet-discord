@@ -13,6 +13,18 @@ export const initFaucet = async (config) => {
     });
     await evmProvider.api.isReadyOrError;
     const api = evmProvider.api;
+    if (config.debug) {
+
+    api.on( 'connected' , (e)=>{
+        console.log('API CONNECTED=',e);
+    });
+    api.on( 'disconnected' , (e)=>{
+        console.log('API DISCONNECTED=',e);
+    })
+    api.on( 'error',(e)=>{
+        console.log('API ONERR=',e.message);
+    })
+    }
 // Retrieve the chain & node information information via rpc calls
     const [chain, nodeName, nodeVersion] = await Promise.all([
         api.rpc.system.chain(),
@@ -21,6 +33,10 @@ export const initFaucet = async (config) => {
     ]);
 // Log these stats
     console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+    /*setTimeout(async ()=>{
+        await api.disconnect();
+        console.log('api DISCONNECTED');
+    },5000)*/
 
     const keyring = new Keyring({type: "sr25519"});
     console.log('setting up sender mnem=',config.mnemonic.substring(config.mnemonic.length-8));
@@ -29,6 +45,6 @@ export const initFaucet = async (config) => {
     const amount = new BN(config.amount).mul(padding);
 
     const [send$, nonce$] = getSend_nonce$(api, sender, amount, validAddressInteraction$, config.debug)
-    send$.subscribe(undefined, err => console.log('SEND val ERRR=', err), () => console.log('send complete'));
+    send$.subscribe(undefined, err => console.log('SEND STOPPED // ERRR=', err), () => console.log('send complete'));
     return [evmProvider, nonce$, chain]
 }

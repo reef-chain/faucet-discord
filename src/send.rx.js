@@ -1,4 +1,4 @@
-import {startWith} from "rxjs";
+import {NEVER, pipe, startWith, switchMap} from "rxjs";
 import {sendBroadcast, sendError, sendFinalized, sendInBlock, sendIndexed, sendReady} from "./interaction.rx";
 import {shareReplay} from "rxjs";
 
@@ -15,9 +15,51 @@ const getNextNonceFnObs = (api, address) => {
         startWith(true),
         switchScan((state, reset) => {
             if (reset || state == null) {
-                return from(api.rpc.system.accountNextIndex(address)).pipe(map(n => {
+                return from(api.rpc.system.accountNextIndex(address)).pipe(
+                    map(n => {
                     return ({nonce: n.toNumber(), reset, time: new Date()})
-                }), take(1));
+                }), take(1),
+                    catchError((err, caught) => {
+                        console.log('get next nonce ERR=',err.message);
+                        if(!api.isConnected){
+                            console.log('rpc reconnecting');
+
+                            let connect$ = timer(3000).pipe(
+                                switchMap(() => {
+                                    console.log('connnnn....',api.isConnected);
+                                    try {
+                                        if(api.isConnected){
+                                            return caught
+                                        }
+                                        return from(api.connect())
+                                    } catch (e) {
+                                        console.log('ERR 1.1 = ', e.message);
+                                        return
+                                    }
+                                }),
+                                switchMap(v => {
+                                    console.log('reconnected', v);
+                                    return from(api.isReadyOrError).pipe(
+                                        catchError(err1 => {
+                                            console.log('API not ready err=',err1.message);
+                                            return NEVER;
+                                        })
+                                    );
+                                }),
+                                filter(v=> {
+                                    console.log('conn isReady=',v);
+                                    return !!v
+                                })
+                            );
+                            return concat(connect$, caught)
+                        }
+                        return from(api.rpc.system.accountNextIndex(address)).pipe(
+                            map(n => {
+                                return ({nonce: n.toNumber(), reset, time: new Date()})
+                            }), take(1)
+                        )
+                    })
+                    );
             }
             return of({nonce: state.nonce + 1, reset: false, time: new Date()});
         }, null)
@@ -142,6 +184,30 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
 
         catchError((err, caught) => {
                 console.log('ERR1 =', err.message);
+            /*if(!api.isConnected){
+                console.log('rpc reconnecting');
+
+                let connect$ = timer(10000).pipe(
+                    switchMap(() => {
+                        console.log('connnnn....');
+                        try {
+                            return from(api.connect())
+                        } catch (e) {
+                            console.log('ERR 1.1 = ', e.message);
+                            return
+                        }
+                    }),
+                    switchMap(v => {
+                        console.log('reconnected', v);
+                        return api.isReady;
+                    }),
+                    filter(v=> {
+                        console.log('conn isReady=',v);
+                        return !!v
+                    })
+                );
+                return concat(connect$, caught)
+            }*/
                 return caught;
             }
         )

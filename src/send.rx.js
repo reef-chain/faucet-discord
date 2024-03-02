@@ -1,6 +1,7 @@
 import {NEVER, pipe, startWith, switchMap} from "rxjs";
 import {sendBroadcast, sendError, sendFinalized, sendInBlock, sendIndexed, sendReady} from "./interaction.rx";
 import {shareReplay} from "rxjs";
+import axios from "axios";
 
 const {
     Subject, of, mergeMap, map, catchError, take, filter, tap, partition, EMPTY, share, concat,
@@ -152,8 +153,6 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
                     console.log('send start ',address, ' nonce:', sendNextNonce);
                 }
                 const unsubs = await api.tx.balances.transferKeepAlive(address, amount).signAndSend(sender, {nonce: sendNextNonce}, async (txUpdate) => {
-                    // console.log('val=', txUpdate.status.toHuman());
-
                     if (txUpdate.isError) {
                         unsubs();
                         console.log('tx SEND ERROR=', txUpdate.toHuman());
@@ -180,9 +179,18 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
                             console.log('send finalized ',address, ' nonce:',sendNextNonce);
                         }
                         unsubs();
+                        const blockHash = await axios.post("https://squid.subsquid.io/reef-explorer-testnet/graphql",{
+                            query:`
+                            query GetBlockHash {
+                                transfers(limit: 1, where: {blockHeight_eq: ${parseInt(txUpdate.blockNumber,10)}, AND: {extrinsicHash_contains: "${txUpdate.txHash.toHuman()}"}}) {
+                                  blockHash
+                                }
+                              }                              
+                            `
+                        });
+                        
                         await sendFinalized(sendNextInter.interaction);
-
-                        setTimeout(async () => await sendIndexed(sendNextInter.interaction, txUpdate.txHash.toHuman()), 12000);
+                        setTimeout(async () => await sendIndexed(sendNextInter.interaction, txUpdate.txHash.toHuman(),blockHash.data.data.transfers[0].blockHash.substring(2,7)), 12000);
                     }
                 });
             } catch (e) {

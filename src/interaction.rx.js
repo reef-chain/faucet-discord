@@ -48,8 +48,9 @@ export function sendFinalized(interaction) {
     });
 }
 
-export function sendIndexed(interaction, txHash) {
-    const url = 'https://testnet.reefscan.com/transfer/' + txHash;
+export function sendIndexed(interaction, txHash,blockHash) {
+    // 
+    const url = `https://testnet.reefscan.com/transfer/${txHash}-${blockHash}`;
     const linkBtn = new ButtonBuilder()
         .setLabel('👀 testnet.reefscan.com ')
         .setURL(url)

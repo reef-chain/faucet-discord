@@ -11,20 +11,21 @@ export const initFaucet = async (config) => {
     const evmProvider = new Provider({
         provider: new WsProvider(config.ws)
     });
+    if (config.debug) {
+        evmProvider.api.on( 'connected' , (e)=>{
+            console.log('API CONNECTED=',e);
+        });
+        evmProvider.api.on( 'disconnected' , (e)=>{
+            console.log('API DISCONNECTED=',e);
+        })
+        evmProvider.api.on( 'error',(e)=>{
+            console.log('API ONERR=',e.message);
+        })
+    }
     await evmProvider.api.isReadyOrError;
     const api = evmProvider.api;
-    if (config.debug) {
 
-    api.on( 'connected' , (e)=>{
-        console.log('API CONNECTED=',e);
-    });
-    api.on( 'disconnected' , (e)=>{
-        console.log('API DISCONNECTED=',e);
-    })
-    api.on( 'error',(e)=>{
-        console.log('API ONERR=',e.message);
-    })
-    }
+
 // Retrieve the chain & node information information via rpc calls
     const [chain, nodeName, nodeVersion] = await Promise.all([
         api.rpc.system.chain(),

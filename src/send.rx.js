@@ -118,7 +118,7 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
             }
 
             // set new nonce as last
-            if (isNewNextNonce) {
+            if (isNewNextNonce || newState.lastNonce===null) {
                 newState.lastNonce = sNextNonce;
             }
 
@@ -179,18 +179,19 @@ export const getSend_nonce$ = (api, sender, amount, addressInteraction$, debug) 
                             console.log('send finalized ',address, ' nonce:',sendNextNonce);
                         }
                         unsubs();
-                        const blockHash = await axios.post("https://squid.subsquid.io/reef-explorer-testnet/graphql",{
+                        /*const blockHash = await axios.post("https://squid.subsquid.io/reef-explorer-testnet/graphql",{
                             query:`
                             query GetBlockHash {
                                 transfers(limit: 1, where: {blockHeight_eq: ${parseInt(txUpdate.blockNumber,10)}, AND: {extrinsicHash_contains: "${txUpdate.txHash.toHuman()}"}}) {
                                   blockHash
                                 }
-                              }                              
+                              }
                             `
-                        });
-                        
+                        });*/
+
                         await sendFinalized(sendNextInter.interaction);
-                        setTimeout(async () => await sendIndexed(sendNextInter.interaction, txUpdate.txHash.toHuman(),blockHash.data.data.transfers[0].blockHash.substring(2,7)), 12000);
+                        // let blockHash = blockHash.data.data.transfers[0].blockHash.substring(2,7);
+                        setTimeout(async () => await sendIndexed(sendNextInter.interaction, txUpdate.txHash.toHuman()), 12000);
                     }
                 });
             } catch (e) {

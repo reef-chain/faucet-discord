@@ -3,7 +3,6 @@ const config = require("./config");
 const {Client, Collection, Events, GatewayIntentBits} = require('discord.js');
 const {initFaucet} = require("./faucet");
 
-
 initFaucet(config).then(([evmProvider, nonce$, chain]) => initServer(8080, evmProvider, nonce$, chain));
 
 const client = new Client({intents: [GatewayIntentBits.Guilds]});
